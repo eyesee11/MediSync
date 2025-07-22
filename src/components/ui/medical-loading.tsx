@@ -57,7 +57,7 @@ export function MedicalLoading({
               const radius = size === "sm" ? 20 : size === "md" ? 30 : 40;
               const x = Math.cos((angle * Math.PI) / 180) * radius;
               const y = Math.sin((angle * Math.PI) / 180) * radius;
-              
+
               return (
                 <motion.div
                   key={i}

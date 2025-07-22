@@ -17,8 +17,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const isAuthRoute = pathname === "/login";
   const isLandingPage = pathname === "/";
+  const isContactPage = pathname === "/contact";
+  const isOnboardingPage =
+    pathname === "/patient-onboarding" || pathname === "/doctor-onboarding";
 
-  if (isAuthRoute || isLandingPage) {
+  if (isAuthRoute || isLandingPage || isContactPage || isOnboardingPage) {
     return (
       <main>
         <PageTransition>{children}</PageTransition>

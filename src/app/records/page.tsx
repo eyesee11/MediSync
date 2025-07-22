@@ -46,7 +46,6 @@ import {
   FileClock,
   Send,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const patientRecords = [
   {
@@ -404,7 +403,6 @@ export default function RecordsPage() {
               : "Manage and view your personal medical records."}
           </p>
         </div>
-        <ThemeToggle />
       </div>
 
       {hasAccess && selectedPatient ? (

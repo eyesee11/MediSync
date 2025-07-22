@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BlockchainApprovals } from "./blockchain-approvals";
 import {
   LineChart,
   Line,
@@ -179,15 +178,11 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
       </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="health-metrics">Health Metrics</TabsTrigger>
           <TabsTrigger value="consultations">Consultations</TabsTrigger>
           <TabsTrigger value="referral-network">Referral Network</TabsTrigger>
-          <TabsTrigger value="blockchain">
-            <Link2 className="h-4 w-4 mr-2" />
-            Blockchain
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -511,10 +506,6 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="blockchain" className="space-y-6">
-          <BlockchainApprovals />
         </TabsContent>
       </Tabs>
     </div>

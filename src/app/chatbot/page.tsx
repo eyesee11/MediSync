@@ -15,8 +15,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { patientChat } from "@/ai/flows/patient-chat-flow";
-import { Bot, Send, User, Loader2, MapPin, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Bot,
+  Send,
+  User,
+  Loader2,
+  MapPin,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -72,17 +81,20 @@ export default function ChatbotPage() {
   } | null>(null);
 
   // Speech recognition setup
-  const [recognition, setRecognition] = React.useState<SpeechRecognition | null>(null);
-  const [speechSynthesis, setSpeechSynthesis] = React.useState<SpeechSynthesis | null>(null);
+  const [recognition, setRecognition] =
+    React.useState<SpeechRecognition | null>(null);
+  const [speechSynthesis, setSpeechSynthesis] =
+    React.useState<SpeechSynthesis | null>(null);
 
   React.useEffect(() => {
     // Initialize speech recognition
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.webkitSpeechRecognition || window.SpeechRecognition;
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-US';
+      recognition.lang = "en-US";
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -95,7 +107,7 @@ export default function ChatbotPage() {
       };
 
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error:', event.error);
+        console.error("Speech recognition error:", event.error);
         setIsListening(false);
         toast({
           variant: "destructive",
@@ -112,7 +124,7 @@ export default function ChatbotPage() {
     }
 
     // Initialize speech synthesis
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       setSpeechSynthesis(window.speechSynthesis);
     }
 
@@ -150,12 +162,12 @@ export default function ChatbotPage() {
     if (speechSynthesis && speechEnabled) {
       // Cancel any ongoing speech
       speechSynthesis.cancel();
-      
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.9;
       utterance.pitch = 1;
       utterance.volume = 0.8;
-      
+
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
@@ -221,34 +233,28 @@ export default function ChatbotPage() {
         ...newMessages,
         { role: "assistant", content: result.response },
       ]);
-      
+
       // Speak the AI response if speech is enabled
       if (speechEnabled && !isSpeaking) {
         speakText(result.response);
       }
     } catch (error: any) {
-      // This is the special case where the Genkit tool signals it needs location
-      if (error.message?.includes("NEEDS_LOCATION")) {
-        setMessages([
-          ...newMessages,
-          {
-            role: "assistant",
-            content:
-              "I can help with that. Please share your location so I can find nearby doctors for you.",
-          },
-        ]);
-        handleLocationRequest();
-      } else {
-        console.error("AI Error:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description:
-            "Failed to get a response from the AI assistant. The API key may be missing or invalid.",
-        });
-        // Revert to previous state on error
-        setMessages(messages);
-      }
+      console.error("AI Error:", error);
+      setMessages([
+        ...newMessages,
+        {
+          role: "assistant",
+          content:
+            "I apologize, but I'm experiencing technical difficulties right now. Please try asking your question again, or consider consulting with a healthcare professional directly for immediate assistance.",
+        },
+      ]);
+
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          "Failed to get a response from the AI assistant. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -265,7 +271,6 @@ export default function ChatbotPage() {
             Ask general health questions. This AI cannot provide medical advice.
           </p>
         </div>
-        <ThemeToggle />
       </div>
 
       <Card className="flex-1 flex flex-col">
@@ -279,9 +284,9 @@ export default function ChatbotPage() {
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={toggleSpeech}
               className={speechEnabled ? "text-green-600" : "text-red-600"}
             >
@@ -381,7 +386,11 @@ export default function ChatbotPage() {
               disabled={isLoading}
               className={isListening ? "animate-pulse" : ""}
             >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              {isListening ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
               <span className="sr-only">
                 {isListening ? "Stop listening" : "Start voice input"}
               </span>

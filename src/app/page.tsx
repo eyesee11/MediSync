@@ -1,7 +1,5 @@
-import { LandingPage } from "@/components/landing/landing-page";
+import { ModernLandingPage } from "@/components/landing/modern-landing-page";
 
 export default function Home() {
-  return (
-    <LandingPage />
-  );
+  return <ModernLandingPage />;
 }

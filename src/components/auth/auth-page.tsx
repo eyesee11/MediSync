@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Logo } from "@/components/icons/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { FcGoogle } from "react-icons/fc";
 import { Fingerprint } from "lucide-react";
@@ -64,7 +63,7 @@ export function AuthPage() {
 
   const handleGoogleAuth = async () => {
     setIsGoogleLoading(true);
-    
+
     // Simulate Google OAuth flow
     setTimeout(() => {
       // Mock Google user data
@@ -72,7 +71,7 @@ export function AuthPage() {
         name: "Priya Sharma",
         email: "priya.sharma@gmail.com",
         picture: "https://lh3.googleusercontent.com/a/default-user=s96-c",
-        verified: true
+        verified: true,
       };
 
       login({
@@ -80,7 +79,7 @@ export function AuthPage() {
         role: role,
         email: googleUser.email,
         authMethod: "google",
-        verified: googleUser.verified
+        verified: googleUser.verified,
       });
 
       router.push("/dashboard");
@@ -90,7 +89,7 @@ export function AuthPage() {
 
   const handleAadharAuth = async () => {
     setIsAadharLoading(true);
-    
+
     // Simulate Aadhar authentication flow
     setTimeout(() => {
       // Mock Aadhar user data
@@ -98,7 +97,7 @@ export function AuthPage() {
         name: "Rajesh Kumar",
         aadharNumber: "****-****-1234",
         verified: true,
-        address: "Delhi, India"
+        address: "Delhi, India",
       };
 
       login({
@@ -106,7 +105,7 @@ export function AuthPage() {
         role: role,
         authMethod: "aadhar",
         verified: aadharUser.verified,
-        aadharNumber: aadharUser.aadharNumber
+        aadharNumber: aadharUser.aadharNumber,
       });
 
       router.push("/dashboard");
@@ -123,7 +122,6 @@ export function AuthPage() {
         <Card className="w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Logo className="w-8 h-8 text-primary" />
               <h1 className="text-2xl font-bold">MediSync Hub</h1>
             </div>
           </CardHeader>
@@ -259,7 +257,9 @@ export function AuthPage() {
                       {role === "doctor" && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="medical-license">Medical License Number</Label>
+                            <Label htmlFor="medical-license">
+                              Medical License Number
+                            </Label>
                             <Input
                               id="medical-license"
                               type="text"
@@ -268,7 +268,9 @@ export function AuthPage() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="specialization">Specialization</Label>
+                            <Label htmlFor="specialization">
+                              Specialization
+                            </Label>
                             <Input
                               id="specialization"
                               type="text"
@@ -291,11 +293,7 @@ export function AuthPage() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="dob">Date of Birth</Label>
-                            <Input
-                              id="dob"
-                              type="date"
-                              required
-                            />
+                            <Input id="dob" type="date" required />
                           </div>
                         </>
                       )}
@@ -323,8 +321,8 @@ export function AuthPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleGoogleAuth}
                 disabled={isGoogleLoading}
                 className="flex items-center justify-center"
@@ -336,7 +334,7 @@ export function AuthPage() {
                 )}
                 Google
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleAadharAuth}
                 disabled={isAadharLoading}

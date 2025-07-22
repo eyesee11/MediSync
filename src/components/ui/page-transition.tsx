@@ -33,7 +33,7 @@ export function PageTransition({ children }: PageTransitionProps) {
       const endLoading = () => {
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-        
+
         setTimeout(() => {
           setIsLoading(false);
           setCurrentPath(pathname);
@@ -44,24 +44,27 @@ export function PageTransition({ children }: PageTransitionProps) {
       loadingTimeoutRef.current = setTimeout(endLoading, maxLoadingTime);
 
       // Listen for when the document is ready (simulating real page load)
-      if (document.readyState === 'complete') {
+      if (document.readyState === "complete") {
         endLoading();
       } else {
         const handleLoad = () => {
           endLoading();
-          window.removeEventListener('load', handleLoad);
+          window.removeEventListener("load", handleLoad);
         };
-        window.addEventListener('load', handleLoad);
-        
+        window.addEventListener("load", handleLoad);
+
         // Also listen for DOM content loaded
         const handleDOMContentLoaded = () => {
           // Give a small delay after DOM is loaded to ensure rendering
           setTimeout(endLoading, 100);
-          document.removeEventListener('DOMContentLoaded', handleDOMContentLoaded);
+          document.removeEventListener(
+            "DOMContentLoaded",
+            handleDOMContentLoaded
+          );
         };
-        
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
         } else {
           handleDOMContentLoaded();
         }

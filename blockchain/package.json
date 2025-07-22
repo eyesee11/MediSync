@@ -1,0 +1,23 @@
+{
+  "name": "medisync-blockchain",
+  "version": "1.0.0",
+  "description": "Blockchain infrastructure for MediSync medical records",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "test": "hardhat test",
+    "node": "hardhat node"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.4"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
+    "ethers": "^6.9.2",
+    "ipfs-http-client": "^60.0.1"
+  }
+}

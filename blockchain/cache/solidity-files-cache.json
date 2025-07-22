@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "D:\\temporary\\MediSync\\blockchain\\contracts\\PatientDataConsent.sol": {
+      "lastModificationDate": 1753008969839,
+      "contentHash": "5c39997d9e3565e68087459be3d94029",
+      "sourceName": "contracts/PatientDataConsent.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "PatientDataConsent"
+      ]
+    }
+  }
+}

@@ -277,8 +277,9 @@ export function DoctorReferrals({ doctor }: DoctorReferralsProps) {
       </Card>
 
       <Tabs defaultValue="referrals" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="referrals">Incoming Referrals</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="templates">Response Templates</TabsTrigger>
         </TabsList>
@@ -708,6 +709,98 @@ export function DoctorReferrals({ doctor }: DoctorReferralsProps) {
                   />
                 </LineChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appointments" className="space-y-6">
+          {/* Pending Appointments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Pending Appointments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Mock appointment data - in a real app, this would come from state management */}
+                <div className="border rounded-lg p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>AS</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">Ajay Singh</p>
+                          <p className="text-sm text-muted-foreground">
+                            Patient ID: PAT001
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p>📅 Tomorrow, 2:00 PM</p>
+                        <p>💰 ₹800 - General Consultation</p>
+                        <p>📝 Symptoms: Chest pain, shortness of breath</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        Reschedule
+                      </Button>
+                      <Button size="sm">Accept</Button>
+                      <Button size="sm" variant="destructive">
+                        Decline
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center py-8 text-muted-foreground">
+                  <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No more pending appointments</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Today's Schedule */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Today's Schedule
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium">9:00 AM - 9:30 AM</p>
+                    <p className="text-sm text-muted-foreground">Available</p>
+                  </div>
+                  <Badge variant="secondary">Free</Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <div>
+                    <p className="font-medium">10:00 AM - 10:30 AM</p>
+                    <p className="text-sm text-muted-foreground">
+                      Priya Sharma - Follow-up
+                    </p>
+                  </div>
+                  <Badge>Confirmed</Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium">11:00 AM - 11:30 AM</p>
+                    <p className="text-sm text-muted-foreground">Available</p>
+                  </div>
+                  <Badge variant="secondary">Free</Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

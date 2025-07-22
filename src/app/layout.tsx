@@ -1,16 +1,18 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import { AppLayout } from '@/components/layout/app-layout';
-import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/components/auth/auth-provider';
-import { ThemeProvider } from "@/components/theme-provider"
-import { Inter } from 'next/font/google';
+import type { Metadata } from "next";
+import "./globals.css";
+import { AppLayout } from "@/components/layout/app-layout";
+import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/components/auth/auth-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { BlockchainProvider } from "@/contexts/blockchain-context";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: 'MediSync Hub',
-  description: 'Secure, real-time medical record synchronization and transfer platform.',
+  title: "MediSync Hub",
+  description:
+    "Secure, real-time medical record synchronization and transfer platform.",
 };
 
 export default function RootLayout({
@@ -23,8 +25,8 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <AuthProvider>

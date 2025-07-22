@@ -37,7 +37,6 @@ import {
   Stethoscope,
   MapPin,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -256,9 +255,6 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto p-6">
       <div className="text-center relative">
-        <div className="absolute top-0 right-0">
-          <ThemeToggle />
-        </div>
         <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-3 mb-4">
           <Stethoscope className="h-10 w-10 text-primary" />
           Doctor Registration

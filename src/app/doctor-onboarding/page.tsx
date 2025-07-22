@@ -26,7 +26,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Save,
   UserCircle,
@@ -889,9 +888,6 @@ export default function DoctorOnboardingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="text-center mb-8">

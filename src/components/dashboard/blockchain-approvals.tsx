@@ -18,7 +18,7 @@ import {
   Copy,
   ExternalLink,
   FileText,
-  Pill
+  Pill,
 } from "lucide-react";
 
 interface BlockchainTransaction {
@@ -64,10 +64,20 @@ const mockTransactions: BlockchainTransaction[] = [
     targetName: "Ajay Singh",
     description: "Request access to cardiac test results",
     consensusNodes: [
-      { nodeId: "node_1", nodeName: "AIIMS Node", vote: "approve", timestamp: Date.now() - 25000 },
-      { nodeId: "node_2", nodeName: "Apollo Node", vote: "approve", timestamp: Date.now() - 20000 },
-      { nodeId: "node_3", nodeName: "Fortis Node", vote: "pending" }
-    ]
+      {
+        nodeId: "node_1",
+        nodeName: "AIIMS Node",
+        vote: "approve",
+        timestamp: Date.now() - 25000,
+      },
+      {
+        nodeId: "node_2",
+        nodeName: "Apollo Node",
+        vote: "approve",
+        timestamp: Date.now() - 20000,
+      },
+      { nodeId: "node_3", nodeName: "Fortis Node", vote: "pending" },
+    ],
   },
   {
     id: "tx_002",
@@ -86,10 +96,25 @@ const mockTransactions: BlockchainTransaction[] = [
     targetName: "Ajay Singh",
     description: "Upload blood test results",
     consensusNodes: [
-      { nodeId: "node_1", nodeName: "AIIMS Node", vote: "approve", timestamp: Date.now() - 115000 },
-      { nodeId: "node_2", nodeName: "Apollo Node", vote: "approve", timestamp: Date.now() - 110000 },
-      { nodeId: "node_3", nodeName: "Fortis Node", vote: "approve", timestamp: Date.now() - 105000 }
-    ]
+      {
+        nodeId: "node_1",
+        nodeName: "AIIMS Node",
+        vote: "approve",
+        timestamp: Date.now() - 115000,
+      },
+      {
+        nodeId: "node_2",
+        nodeName: "Apollo Node",
+        vote: "approve",
+        timestamp: Date.now() - 110000,
+      },
+      {
+        nodeId: "node_3",
+        nodeName: "Fortis Node",
+        vote: "approve",
+        timestamp: Date.now() - 105000,
+      },
+    ],
   },
   {
     id: "tx_003",
@@ -108,59 +133,75 @@ const mockTransactions: BlockchainTransaction[] = [
     targetName: "Ajay Singh",
     description: "Dispense prescribed medication",
     consensusNodes: [
-      { nodeId: "node_1", nodeName: "AIIMS Node", vote: "approve", timestamp: Date.now() - 8000 },
+      {
+        nodeId: "node_1",
+        nodeName: "AIIMS Node",
+        vote: "approve",
+        timestamp: Date.now() - 8000,
+      },
       { nodeId: "node_2", nodeName: "Apollo Node", vote: "pending" },
-      { nodeId: "node_3", nodeName: "Fortis Node", vote: "pending" }
-    ]
-  }
+      { nodeId: "node_3", nodeName: "Fortis Node", vote: "pending" },
+    ],
+  },
 ];
 
 export function BlockchainApprovals() {
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<BlockchainTransaction[]>(mockTransactions);
-  const [selectedTransaction, setSelectedTransaction] = useState<BlockchainTransaction | null>(null);
+  const [transactions, setTransactions] =
+    useState<BlockchainTransaction[]>(mockTransactions);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<BlockchainTransaction | null>(null);
 
   // Simulate blockchain consensus updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setTransactions(prev => prev.map(tx => {
-        if (tx.status === "pending") {
-          // Randomly update pending votes
-          const updatedNodes = tx.consensusNodes.map(node => {
-            if (node.vote === "pending" && Math.random() > 0.7) {
-              return {
-                ...node,
-                vote: Math.random() > 0.2 ? "approve" : "reject" as "approve" | "reject",
-                timestamp: Date.now()
-              };
+      setTransactions((prev) =>
+        prev.map((tx) => {
+          if (tx.status === "pending") {
+            // Randomly update pending votes
+            const updatedNodes = tx.consensusNodes.map((node) => {
+              if (node.vote === "pending" && Math.random() > 0.7) {
+                return {
+                  ...node,
+                  vote:
+                    Math.random() > 0.2
+                      ? "approve"
+                      : ("reject" as "approve" | "reject"),
+                  timestamp: Date.now(),
+                };
+              }
+              return node;
+            });
+
+            const approvals = updatedNodes.filter(
+              (n) => n.vote === "approve"
+            ).length;
+            const rejections = updatedNodes.filter(
+              (n) => n.vote === "reject"
+            ).length;
+
+            let newStatus = tx.status;
+            let newConfirmations = tx.confirmations;
+
+            if (approvals >= tx.requiredConfirmations) {
+              newStatus = "confirmed";
+              newConfirmations = tx.requiredConfirmations;
+            } else if (rejections >= tx.requiredConfirmations) {
+              newStatus = "failed";
+            } else if (approvals > 0) {
+              newConfirmations = approvals;
             }
-            return node;
-          });
 
-          const approvals = updatedNodes.filter(n => n.vote === "approve").length;
-          const rejections = updatedNodes.filter(n => n.vote === "reject").length;
-          
-          let newStatus = tx.status;
-          let newConfirmations = tx.confirmations;
-
-          if (approvals >= tx.requiredConfirmations) {
-            newStatus = "confirmed";
-            newConfirmations = tx.requiredConfirmations;
-          } else if (rejections >= tx.requiredConfirmations) {
-            newStatus = "failed";
-          } else if (approvals > 0) {
-            newConfirmations = approvals;
+            return {
+              ...tx,
+              consensusNodes: updatedNodes,
+              status: newStatus,
+              confirmations: newConfirmations,
+            };
           }
-
-          return {
-            ...tx,
-            consensusNodes: updatedNodes,
-            status: newStatus,
-            confirmations: newConfirmations
-          };
-        }
-        return tx;
-      }));
+          return tx;
+        })
+      );
     }, 3000);
 
     return () => clearInterval(interval);
@@ -176,20 +217,29 @@ export function BlockchainApprovals() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmed": return "text-green-600";
-      case "failed": return "text-red-600";
-      case "pending": return "text-yellow-600";
-      default: return "text-gray-600";
+      case "confirmed":
+        return "text-green-600";
+      case "failed":
+        return "text-red-600";
+      case "pending":
+        return "text-yellow-600";
+      default:
+        return "text-gray-600";
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "document": return <FileText className="h-4 w-4" />;
-      case "access": return <Shield className="h-4 w-4" />;
-      case "medical-record": return <Activity className="h-4 w-4" />;
-      case "prescription": return <Pill className="h-4 w-4" />;
-      default: return <Hash className="h-4 w-4" />;
+      case "document":
+        return <FileText className="h-4 w-4" />;
+      case "access":
+        return <Shield className="h-4 w-4" />;
+      case "medical-record":
+        return <Activity className="h-4 w-4" />;
+      case "prescription":
+        return <Pill className="h-4 w-4" />;
+      default:
+        return <Hash className="h-4 w-4" />;
     }
   };
 
@@ -201,7 +251,7 @@ export function BlockchainApprovals() {
     const diff = Date.now() - timestamp;
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
-    
+
     if (minutes > 0) {
       return `${minutes}m ${seconds}s ago`;
     }
@@ -219,7 +269,7 @@ export function BlockchainApprovals() {
         </div>
         <Badge variant="outline" className="flex items-center gap-2">
           <Activity className="h-3 w-3" />
-          {transactions.filter(tx => tx.status === "pending").length} Pending
+          {transactions.filter((tx) => tx.status === "pending").length} Pending
         </Badge>
       </div>
 
@@ -227,10 +277,12 @@ export function BlockchainApprovals() {
         {/* Transaction List */}
         <div className="lg:col-span-2 space-y-4">
           {transactions.map((transaction) => (
-            <Card 
-              key={transaction.id} 
+            <Card
+              key={transaction.id}
               className={`cursor-pointer transition-all hover:shadow-md ${
-                selectedTransaction?.id === transaction.id ? "ring-2 ring-primary" : ""
+                selectedTransaction?.id === transaction.id
+                  ? "ring-2 ring-primary"
+                  : ""
               }`}
               onClick={() => setSelectedTransaction(transaction)}
             >
@@ -238,15 +290,27 @@ export function BlockchainApprovals() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {getTypeIcon(transaction.approvalType)}
-                    <CardTitle className="text-lg">{transaction.description}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {transaction.description}
+                    </CardTitle>
                   </div>
-                  <Badge 
-                    variant={transaction.status === "confirmed" ? "default" : "secondary"}
+                  <Badge
+                    variant={
+                      transaction.status === "confirmed"
+                        ? "default"
+                        : "secondary"
+                    }
                     className={getStatusColor(transaction.status)}
                   >
-                    {transaction.status === "pending" && <Clock className="h-3 w-3 mr-1" />}
-                    {transaction.status === "confirmed" && <CheckCircle className="h-3 w-3 mr-1" />}
-                    {transaction.status === "failed" && <XCircle className="h-3 w-3 mr-1" />}
+                    {transaction.status === "pending" && (
+                      <Clock className="h-3 w-3 mr-1" />
+                    )}
+                    {transaction.status === "confirmed" && (
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                    )}
+                    {transaction.status === "failed" && (
+                      <XCircle className="h-3 w-3 mr-1" />
+                    )}
                     {transaction.status.toUpperCase()}
                   </Badge>
                 </div>
@@ -255,13 +319,17 @@ export function BlockchainApprovals() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">From:</span>
-                    <span className="font-medium">{transaction.requesterName}</span>
+                    <span className="font-medium">
+                      {transaction.requesterName}
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Hash:</span>
                     <div className="flex items-center gap-1">
-                      <span className="font-mono text-xs">{formatHash(transaction.hash)}</span>
+                      <span className="font-mono text-xs">
+                        {formatHash(transaction.hash)}
+                      </span>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -279,12 +347,17 @@ export function BlockchainApprovals() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Consensus:</span>
                     <div className="flex items-center gap-2">
-                      <Progress 
-                        value={(transaction.confirmations / transaction.requiredConfirmations) * 100} 
+                      <Progress
+                        value={
+                          (transaction.confirmations /
+                            transaction.requiredConfirmations) *
+                          100
+                        }
                         className="w-20 h-2"
                       />
                       <span className="text-xs">
-                        {transaction.confirmations}/{transaction.requiredConfirmations}
+                        {transaction.confirmations}/
+                        {transaction.requiredConfirmations}
                       </span>
                     </div>
                   </div>
@@ -314,7 +387,10 @@ export function BlockchainApprovals() {
                   <h4 className="font-semibold mb-2">Consensus Nodes</h4>
                   <div className="space-y-2">
                     {selectedTransaction.consensusNodes.map((node) => (
-                      <div key={node.nodeId} className="flex items-center justify-between p-2 bg-muted rounded-lg">
+                      <div
+                        key={node.nodeId}
+                        className="flex items-center justify-between p-2 bg-muted rounded-lg"
+                      >
                         <div>
                           <p className="font-medium text-sm">{node.nodeName}</p>
                           {node.timestamp && (
@@ -323,15 +399,24 @@ export function BlockchainApprovals() {
                             </p>
                           )}
                         </div>
-                        <Badge 
+                        <Badge
                           variant={
-                            node.vote === "approve" ? "default" :
-                            node.vote === "reject" ? "destructive" : "secondary"
+                            node.vote === "approve"
+                              ? "default"
+                              : node.vote === "reject"
+                              ? "destructive"
+                              : "secondary"
                           }
                         >
-                          {node.vote === "approve" && <CheckCircle className="h-3 w-3 mr-1" />}
-                          {node.vote === "reject" && <XCircle className="h-3 w-3 mr-1" />}
-                          {node.vote === "pending" && <Clock className="h-3 w-3 mr-1" />}
+                          {node.vote === "approve" && (
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                          )}
+                          {node.vote === "reject" && (
+                            <XCircle className="h-3 w-3 mr-1" />
+                          )}
+                          {node.vote === "pending" && (
+                            <Clock className="h-3 w-3 mr-1" />
+                          )}
                           {node.vote.toUpperCase()}
                         </Badge>
                       </div>
@@ -343,24 +428,39 @@ export function BlockchainApprovals() {
                   <h4 className="font-semibold mb-2">Blockchain Info</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Block Number:</span>
-                      <span className="font-mono">#{selectedTransaction.blockNumber}</span>
+                      <span className="text-muted-foreground">
+                        Block Number:
+                      </span>
+                      <span className="font-mono">
+                        #{selectedTransaction.blockNumber}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Gas Used:</span>
-                      <span className="font-mono">{selectedTransaction.gasUsed}</span>
+                      <span className="font-mono">
+                        {selectedTransaction.gasUsed}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Transaction Fee:</span>
-                      <span className="font-mono">{selectedTransaction.transactionFee}</span>
+                      <span className="text-muted-foreground">
+                        Transaction Fee:
+                      </span>
+                      <span className="font-mono">
+                        {selectedTransaction.transactionFee}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
-                  onClick={() => window.open(`https://etherscan.io/tx/${selectedTransaction.hash}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://etherscan.io/tx/${selectedTransaction.hash}`,
+                      "_blank"
+                    )
+                  }
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View on Blockchain Explorer
@@ -388,24 +488,32 @@ export function BlockchainApprovals() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Active Nodes:</span>
+                <span className="text-sm text-muted-foreground">
+                  Active Nodes:
+                </span>
                 <span className="font-medium">3/3</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Network Health:</span>
+                <span className="text-sm text-muted-foreground">
+                  Network Health:
+                </span>
                 <Badge variant="default" className="text-green-600">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Healthy
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Avg. Block Time:</span>
+                <span className="text-sm text-muted-foreground">
+                  Avg. Block Time:
+                </span>
                 <span className="font-mono text-sm">15s</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Pending TXs:</span>
+                <span className="text-sm text-muted-foreground">
+                  Pending TXs:
+                </span>
                 <span className="font-medium">
-                  {transactions.filter(tx => tx.status === "pending").length}
+                  {transactions.filter((tx) => tx.status === "pending").length}
                 </span>
               </div>
             </CardContent>

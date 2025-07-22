@@ -22,6 +22,14 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   MapPin,
   DollarSign,
   Brain,
@@ -35,11 +43,17 @@ import {
   Loader2,
   LocateFixed,
   Navigation,
+  GraduationCap,
+  Clock,
+  Languages,
+  Star,
+  User,
+  Calendar,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
 
 const specialties = [
   { value: "physician", label: "Physician", icon: Stethoscope },
@@ -52,88 +66,146 @@ const specialties = [
 
 const initialDoctors = [
   {
+    id: "dr_ananya_reddy_001",
     name: "Dr. Ananya Reddy",
     specialty: "Physician",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "AR",
     aiHint: "doctor portrait",
+    experience: "8 years",
+    qualification: "MBBS, MD (Internal Medicine)",
+    description:
+      "Dr. Ananya Reddy is a dedicated physician with extensive experience in internal medicine. She specializes in preventive care, chronic disease management, and patient education. Known for her compassionate approach and thorough diagnostic skills.",
+    languages: ["English", "Hindi", "Telugu"],
     location: {
-      address: "123 Health St, San Francisco, CA",
-      lat: 37.7749,
-      lng: -122.4194,
+      address: "Apollo Hospital, Jubilee Hills, Hyderabad, Telangana",
+      lat: 17.4239,
+      lng: 78.4738,
     },
-    fee: 150,
+    fee: 800,
     availableNow: true,
   },
   {
+    id: "dr_vikram_rao_002",
     name: "Dr. Vikram Rao",
     specialty: "Cardiologist",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "VR",
     aiHint: "doctor smiling",
+    experience: "12 years",
+    qualification: "MBBS, MD, DM (Cardiology)",
+    description:
+      "Dr. Vikram Rao is a renowned cardiologist with expertise in interventional cardiology and heart disease prevention. He has performed over 2000 successful cardiac procedures and is known for his patient-centric approach to heart care.",
+    languages: ["English", "Hindi", "Marathi"],
     location: {
-      address: "456 Wellness Ave, New York, NY",
-      lat: 40.7128,
-      lng: -74.006,
+      address: "Fortis Hospital, Mulund, Mumbai, Maharashtra",
+      lat: 19.1647,
+      lng: 72.956,
     },
-    fee: 250,
+    fee: 1200,
     availableNow: false,
   },
   {
+    id: "dr_sunita_patel_003",
     name: "Dr. Sunita Patel",
     specialty: "Pediatrician",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "SP",
     aiHint: "female doctor",
+    experience: "10 years",
+    qualification: "MBBS, MD (Pediatrics)",
+    description:
+      "Dr. Sunita Patel is a compassionate pediatrician who specializes in child health and development. She has extensive experience in treating childhood diseases, vaccinations, and providing guidance to parents on child care and nutrition.",
+    languages: ["English", "Hindi", "Gujarati"],
     location: {
-      address: "789 Cure Blvd, Chicago, IL",
-      lat: 41.8781,
-      lng: -87.6298,
+      address:
+        "Rainbow Children's Hospital, Banjara Hills, Hyderabad, Telangana",
+      lat: 17.4126,
+      lng: 78.4484,
     },
-    fee: 120,
+    fee: 600,
     availableNow: true,
   },
   {
+    id: "dr_rajesh_gupta_004",
     name: "Dr. Rajesh Gupta",
     specialty: "Dermatologist",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "RG",
     aiHint: "male doctor",
+    experience: "15 years",
+    qualification: "MBBS, MD (Dermatology), DDVL",
+    description:
+      "Dr. Rajesh Gupta is a highly experienced dermatologist specializing in skin disorders, cosmetic dermatology, and dermatosurgery. He has treated thousands of patients with various skin conditions and is known for his expertise in advanced dermatological procedures.",
+    languages: ["English", "Hindi", "Punjabi"],
     location: {
-      address: "101 Skin Way, Los Angeles, CA",
-      lat: 34.0522,
-      lng: -118.2437,
+      address: "Max Super Specialty Hospital, Saket, New Delhi",
+      lat: 28.5244,
+      lng: 77.2066,
     },
-    fee: 200,
+    fee: 1000,
     availableNow: false,
   },
   {
+    id: "dr_priya_sharma_005",
     name: "Dr. Priya Sharma",
     specialty: "Neurologist",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "PS",
     aiHint: "indian female doctor",
+    experience: "14 years",
+    qualification: "MBBS, MD, DM (Neurology)",
+    description:
+      "Dr. Priya Sharma is a distinguished neurologist with expertise in treating neurological disorders including epilepsy, stroke, and movement disorders. She is known for her thorough diagnostic approach and personalized treatment plans for complex neurological conditions.",
+    languages: ["English", "Hindi", "Bengali"],
     location: {
-      address: "21 Medical Dr, Boston, MA",
-      lat: 42.3601,
-      lng: -71.0589,
+      address: "AIIMS, Ansari Nagar, New Delhi",
+      lat: 28.5672,
+      lng: 77.21,
     },
-    fee: 275,
+    fee: 1500,
     availableNow: true,
   },
   {
+    id: "dr_rohan_mehta_006",
     name: "Dr. Rohan Mehta",
     specialty: "Orthopedist",
     avatar: "https://placehold.co/80x80.png",
     avatarFallback: "RM",
     aiHint: "indian male doctor",
+    experience: "11 years",
+    qualification: "MBBS, MS (Orthopedics)",
+    description:
+      "Dr. Rohan Mehta is an accomplished orthopedic surgeon specializing in joint replacement, sports injuries, and trauma surgery. He has successfully performed numerous complex orthopedic procedures and is dedicated to helping patients regain mobility and lead active lives.",
+    languages: ["English", "Hindi", "Gujarati"],
     location: {
-      address: "55 Bone St, Houston, TX",
-      lat: 29.7604,
-      lng: -95.3698,
+      address:
+        "Kokilaben Dhirubhai Ambani Hospital, Andheri West, Mumbai, Maharashtra",
+      lat: 19.1368,
+      lng: 72.8269,
     },
-    fee: 180,
+    fee: 900,
     availableNow: false,
+  },
+  {
+    id: "dr_test_payment_007",
+    name: "Dr. Sarah Johnson",
+    specialty: "Physician",
+    avatar: "https://placehold.co/80x80.png",
+    avatarFallback: "SJ",
+    aiHint: "female doctor smiling",
+    experience: "7 years",
+    qualification: "MBBS, MD (Internal Medicine)",
+    description:
+      "Dr. Sarah Johnson is a compassionate physician specializing in family medicine and preventive care. She offers comprehensive health services including routine check-ups, health screenings, and management of chronic conditions. Perfect for testing our payment portal with reasonable consultation fees.",
+    languages: ["English"],
+    location: {
+      address: "MediSync Test Clinic, Downtown Medical Center, Your City",
+      lat: 40.7128,
+      lng: -74.006,
+    },
+    fee: 150,
+    availableNow: true,
   },
 ];
 
@@ -171,6 +243,17 @@ export default function SearchPage() {
     lng: number;
   } | null>(null);
   const [isLocating, setIsLocating] = React.useState(false);
+  const [selectedDoctor, setSelectedDoctor] = React.useState<
+    ((typeof initialDoctors)[0] & { distance?: number }) | null
+  >(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+
+  const handleViewProfile = (
+    doctor: (typeof initialDoctors)[0] & { distance?: number }
+  ) => {
+    setSelectedDoctor(doctor);
+    setIsProfileModalOpen(true);
+  };
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -252,7 +335,6 @@ export default function SearchPage() {
             Find the right doctor with detailed filters and location search.
           </p>
         </div>
-        <ThemeToggle />
       </div>
 
       <Card>
@@ -432,20 +514,30 @@ export default function SearchPage() {
                   </div>
                 </CardHeader>
 
-                <CardFooter className="flex justify-end items-center mt-auto pt-4 border-t">
-                  {searchLocation && (
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.location.lat},${doctor.location.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mr-2"
+                <CardFooter className="flex justify-between items-center mt-auto pt-4 border-t">
+                  <div className="flex items-center gap-2">
+                    {searchLocation && (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.location.lat},${doctor.location.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="outline" size="sm">
+                          <Navigation className="mr-2 h-4 w-4" /> Directions
+                        </Button>
+                      </a>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewProfile(doctor)}
                     >
-                      <Button variant="outline">
-                        <Navigation className="mr-2" /> Directions
-                      </Button>
-                    </a>
-                  )}
-                  <Button>Book Appointment</Button>
+                      <User className="mr-2 h-4 w-4" /> View Profile
+                    </Button>
+                  </div>
+                  <Link href="/payment">
+                    <Button>Book Appointment</Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))
@@ -458,6 +550,137 @@ export default function SearchPage() {
           )}
         </div>
       </div>
+
+      {/* Doctor Profile Modal */}
+      <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedDoctor && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">
+                  {selectedDoctor.name}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Doctor Header */}
+                <div className="flex items-start gap-4">
+                  <Avatar className="w-24 h-24 border">
+                    <AvatarImage
+                      src={selectedDoctor.avatar}
+                      alt={selectedDoctor.name}
+                      data-ai-hint={selectedDoctor.aiHint}
+                    />
+                    <AvatarFallback className="text-lg">
+                      {selectedDoctor.avatarFallback}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold">{selectedDoctor.name}</h3>
+                    <p className="text-primary font-medium text-lg">
+                      {selectedDoctor.specialty}
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      {selectedDoctor.experience} years of experience
+                    </p>
+                    <Badge
+                      variant={
+                        selectedDoctor.availableNow ? "default" : "secondary"
+                      }
+                      className={
+                        selectedDoctor.availableNow
+                          ? "bg-green-100 text-green-800 mt-2"
+                          : "mt-2"
+                      }
+                    >
+                      {selectedDoctor.availableNow
+                        ? "Available Now"
+                        : "Unavailable"}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h4 className="font-semibold mb-2">About</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {selectedDoctor.description}
+                  </p>
+                </div>
+
+                {/* Qualifications */}
+                <div>
+                  <h4 className="font-semibold mb-2">Qualifications</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDoctor.qualifications.map(
+                      (qualification, index) => (
+                        <Badge key={index} variant="outline">
+                          {qualification}
+                        </Badge>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Languages */}
+                <div>
+                  <h4 className="font-semibold mb-2">Languages</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDoctor.languages.map((language, index) => (
+                      <Badge key={index} variant="secondary">
+                        {language}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Location & Fee */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Location</h4>
+                    <p className="text-muted-foreground flex items-start gap-2">
+                      <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
+                      <span>{selectedDoctor.location.address}</span>
+                    </p>
+                    {selectedDoctor.distance && (
+                      <p className="text-sm font-medium mt-1 text-primary">
+                        {selectedDoctor.distance.toFixed(1)} miles away
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Consultation Fee</h4>
+                    <p className="text-2xl font-bold text-primary">
+                      ₹{selectedDoctor.fee}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <div className="flex gap-2">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${selectedDoctor.location.lat},${selectedDoctor.location.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="outline">
+                        <Navigation className="mr-2 h-4 w-4" /> Get Directions
+                      </Button>
+                    </a>
+                  </div>
+                  <Link href="/payment">
+                    <Button size="lg" className="px-8">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Book Appointment
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

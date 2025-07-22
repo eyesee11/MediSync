@@ -30,8 +30,8 @@ import {
   KeyRound,
   UserCircle,
   Shield,
+  MessageCircle,
 } from "lucide-react";
-import { Logo } from "@/components/icons/logo";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -39,18 +39,42 @@ import { useToast } from "@/hooks/use-toast";
 import * as React from "react";
 
 const doctorMenuItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/records", label: "Patient Records", icon: FileText },
-  { href: "/verification", label: "Verify Credentials", icon: Shield },
-  { href: "/profile", label: "My Profile", icon: UserCircle },
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    external: false,
+  },
+  {
+    href: "/records",
+    label: "Patient Records",
+    icon: FileText,
+    external: false,
+  },
+  {
+    href: "/verification",
+    label: "Verify Credentials",
+    icon: Shield,
+    external: false,
+  },
 ];
 
 const patientMenuItems = [
-  { href: "/dashboard", label: "My Health", icon: HeartPulse },
-  { href: "/records", label: "My Records", icon: FileText },
-  { href: "/search", label: "Find a Doctor", icon: SearchIcon },
-  { href: "/chatbot", label: "Ask AI", icon: Bot },
-  { href: "/verification", label: "Verify Insurance", icon: Shield },
+  { href: "/dashboard", label: "My Health", icon: HeartPulse, external: false },
+  { href: "/records", label: "My Records", icon: FileText, external: false },
+  {
+    href: "/search",
+    label: "Find a Doctor",
+    icon: SearchIcon,
+    external: false,
+  },
+  { href: "/chatbot", label: "Ask AI", icon: Bot, external: false },
+  {
+    href: "/verification",
+    label: "Verify Insurance",
+    icon: Shield,
+    external: false,
+  },
 ];
 
 export function AppSidebarContent() {
@@ -92,12 +116,7 @@ export function AppSidebarContent() {
       <SidebarHeader>
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Logo className="w-6 h-6 text-primary" />
-            </div>
-            <span className="font-semibold text-lg group-data-[collapsible=icon]:hidden">
-              MediSync Hub
-            </span>
+            <span className="font-semibold text-lg">MediSync Hub</span>
           </Link>
           <SidebarTrigger className="hidden md:flex" />
         </div>
@@ -106,20 +125,32 @@ export function AppSidebarContent() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href}>
+              {item.external ? (
                 <SidebarMenuButton
                   asChild={false}
-                  isActive={
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" &&
-                      pathname.startsWith(item.href))
-                  }
+                  isActive={false}
                   tooltip={item.label}
+                  onClick={() => window.open(item.href, "_blank")}
                 >
                   <item.icon />
                   <span>{item.label}</span>
                 </SidebarMenuButton>
-              </Link>
+              ) : (
+                <Link href={item.href}>
+                  <SidebarMenuButton
+                    asChild={false}
+                    isActive={
+                      pathname === item.href ||
+                      (item.href !== "/dashboard" &&
+                        pathname.startsWith(item.href))
+                    }
+                    tooltip={item.label}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -228,64 +259,70 @@ export function AppSidebarContent() {
       </SidebarContent>
       <Separator className="my-1" />
       <SidebarFooter>
-        <div className="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 w-full">
-          <div className="relative">
-            <Avatar className="w-9 h-9 border-2 border-primary/20">
-              <AvatarImage
-                src={
-                  user?.role === "doctor"
-                    ? `https://placehold.co/40x40/4F46E5/FFFFFF.png?text=Dr`
-                    : `https://placehold.co/40x40/059669/FFFFFF.png?text=P`
-                }
-                alt={user?.name}
-              />
-              <AvatarFallback
-                className={
-                  user?.role === "doctor"
-                    ? "bg-blue-600 text-white"
-                    : "bg-green-600 text-white"
-                }
-              >
-                {user?.role === "doctor" ? "Dr" : user?.name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            {/* Role indicator badge */}
-            <div
-              className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                user?.role === "doctor" ? "bg-blue-600" : "bg-green-600"
-              }`}
-            >
-              {user?.role === "doctor" ? "👩‍⚕️" : "🏥"}
-            </div>
-          </div>
-          <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
-            <div className="flex items-center gap-2">
-              <p className="font-semibold text-sm truncate">{user?.name}</p>
+        <Link href="/profile" className="block">
+          <div className="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 w-full hover:bg-accent">
+            <div className="relative">
+              <Avatar className="w-9 h-9 border-2 border-primary/20">
+                <AvatarImage
+                  src={
+                    user?.role === "doctor"
+                      ? `https://placehold.co/40x40/4F46E5/FFFFFF.png?text=Dr`
+                      : `https://placehold.co/40x40/059669/FFFFFF.png?text=P`
+                  }
+                  alt={user?.name}
+                />
+                <AvatarFallback
+                  className={
+                    user?.role === "doctor"
+                      ? "bg-blue-600 text-white"
+                      : "bg-green-600 text-white"
+                  }
+                >
+                  {user?.role === "doctor" ? "Dr" : user?.name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              {/* Role indicator badge */}
               <div
-                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  user?.role === "doctor"
-                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                    : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                  user?.role === "doctor" ? "bg-blue-600" : "bg-green-600"
                 }`}
               >
-                {user?.role === "doctor" ? "Doctor" : "Patient"}
+                {user?.role === "doctor" ? "👩‍⚕️" : "🏥"}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground truncate">
-              {user?.role === "doctor"
-                ? "Medical Professional"
-                : "Patient Profile"}
-            </p>
+            <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm truncate">{user?.name}</p>
+                <div
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    user?.role === "doctor"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  }`}
+                >
+                  {user?.role === "doctor" ? "Doctor" : "Patient"}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.role === "doctor"
+                  ? "Medical Professional"
+                  : "Patient Profile"}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 group-data-[collapsible=icon]:hidden"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                logout();
+              }}
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 group-data-[collapsible=icon]:hidden"
-            onClick={logout}
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
-        </div>
+        </Link>
       </SidebarFooter>
     </>
   );

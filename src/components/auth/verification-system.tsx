@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   Loader2,
   Search,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 
 interface VerificationResult {
@@ -40,49 +40,52 @@ interface VerificationResult {
 
 // Mock verification database
 const mockHPRIDDatabase = {
-  "MH123456789": {
+  MH123456789: {
     name: "Dr. Arjun Patel",
     registrationDate: "2018-06-15",
     specialty: "Cardiology",
     hospital: "Apollo Hospital Delhi",
     licenseStatus: "Active",
-    state: "Maharashtra"
+    state: "Maharashtra",
   },
-  "DL987654321": {
+  DL987654321: {
     name: "Dr. Priya Sharma",
     registrationDate: "2020-03-22",
     specialty: "Dermatology",
     hospital: "Max Hospital Saket",
     licenseStatus: "Active",
-    state: "Delhi"
-  }
+    state: "Delhi",
+  },
 };
 
 const mockInsuranceDatabase = {
-  "POL001234567890": {
+  POL001234567890: {
     name: "Ajay Singh",
     insuranceProvider: "Star Health Insurance",
     policyNumber: "POL001234567890",
     expiryDate: "2025-12-31",
     coverageAmount: "₹5,00,000",
-    status: "Active"
+    status: "Active",
   },
-  "HDC987654321098": {
+  HDC987654321098: {
     name: "Priya Sharma",
     insuranceProvider: "HDFC ERGO Health",
     policyNumber: "HDC987654321098",
     expiryDate: "2025-08-15",
     coverageAmount: "₹10,00,000",
-    status: "Active"
-  }
+    status: "Active",
+  },
 };
 
 export function VerificationSystem() {
   const { toast } = useToast();
   const [hpridInput, setHpridInput] = useState("");
   const [insuranceInput, setInsuranceInput] = useState("");
-  const [hpridResult, setHpridResult] = useState<VerificationResult | null>(null);
-  const [insuranceResult, setInsuranceResult] = useState<VerificationResult | null>(null);
+  const [hpridResult, setHpridResult] = useState<VerificationResult | null>(
+    null
+  );
+  const [insuranceResult, setInsuranceResult] =
+    useState<VerificationResult | null>(null);
   const [hpridLoading, setHpridLoading] = useState(false);
   const [insuranceLoading, setInsuranceLoading] = useState(false);
 
@@ -97,17 +100,21 @@ export function VerificationSystem() {
     }
 
     setHpridLoading(true);
-    setHpridResult({ status: "pending", message: "Verifying with Medical Council..." });
+    setHpridResult({
+      status: "pending",
+      message: "Verifying with Medical Council...",
+    });
 
     // Simulate API call delay
     setTimeout(() => {
-      const doctor = mockHPRIDDatabase[hpridInput as keyof typeof mockHPRIDDatabase];
-      
+      const doctor =
+        mockHPRIDDatabase[hpridInput as keyof typeof mockHPRIDDatabase];
+
       if (doctor) {
         setHpridResult({
           status: "verified",
           message: "HPRID verified successfully!",
-          details: doctor
+          details: doctor,
         });
         toast({
           title: "Verification Successful",
@@ -116,7 +123,8 @@ export function VerificationSystem() {
       } else {
         setHpridResult({
           status: "not_found",
-          message: "HPRID not found in our database. Please check the number and try again."
+          message:
+            "HPRID not found in our database. Please check the number and try again.",
         });
         toast({
           variant: "destructive",
@@ -139,33 +147,40 @@ export function VerificationSystem() {
     }
 
     setInsuranceLoading(true);
-    setInsuranceResult({ status: "pending", message: "Verifying with insurance provider..." });
+    setInsuranceResult({
+      status: "pending",
+      message: "Verifying with insurance provider...",
+    });
 
     // Simulate API call delay
     setTimeout(() => {
-      const policy = mockInsuranceDatabase[insuranceInput as keyof typeof mockInsuranceDatabase];
-      
+      const policy =
+        mockInsuranceDatabase[
+          insuranceInput as keyof typeof mockInsuranceDatabase
+        ];
+
       if (policy) {
         // Check if policy is expired
         const expiryDate = new Date(policy.expiryDate);
         const now = new Date();
-        
+
         if (expiryDate < now) {
           setInsuranceResult({
             status: "failed",
             message: "Insurance policy has expired.",
-            details: policy
+            details: policy,
           });
           toast({
             variant: "destructive",
             title: "Policy Expired",
-            description: "The insurance policy has expired. Please renew your policy.",
+            description:
+              "The insurance policy has expired. Please renew your policy.",
           });
         } else {
           setInsuranceResult({
             status: "verified",
             message: "Insurance policy verified successfully!",
-            details: policy
+            details: policy,
           });
           toast({
             title: "Verification Successful",
@@ -175,7 +190,8 @@ export function VerificationSystem() {
       } else {
         setInsuranceResult({
           status: "not_found",
-          message: "Insurance policy not found. Please check the policy number and try again."
+          message:
+            "Insurance policy not found. Please check the policy number and try again.",
         });
         toast({
           variant: "destructive",
@@ -254,7 +270,9 @@ export function VerificationSystem() {
                     id="hprid"
                     placeholder="e.g., MH123456789"
                     value={hpridInput}
-                    onChange={(e) => setHpridInput(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setHpridInput(e.target.value.toUpperCase())
+                    }
                     disabled={hpridLoading}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -262,8 +280,8 @@ export function VerificationSystem() {
                   </p>
                 </div>
                 <div className="flex items-end">
-                  <Button 
-                    onClick={verifyHPRID} 
+                  <Button
+                    onClick={verifyHPRID}
                     disabled={hpridLoading || !hpridInput.trim()}
                     className="flex items-center gap-2"
                   >
@@ -279,7 +297,9 @@ export function VerificationSystem() {
 
               {/* Sample HPRID Numbers */}
               <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-2">Sample HPRID Numbers for Testing:</p>
+                <p className="text-sm font-medium mb-2">
+                  Sample HPRID Numbers for Testing:
+                </p>
                 <div className="flex gap-2 flex-wrap">
                   <Button
                     variant="outline"
@@ -309,25 +329,37 @@ export function VerificationSystem() {
                           <div className="mt-3 space-y-2">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <span className="font-medium">Name:</span> {hpridResult.details.name}
+                                <span className="font-medium">Name:</span>{" "}
+                                {hpridResult.details.name}
                               </div>
                               <div>
-                                <span className="font-medium">Specialty:</span> {hpridResult.details.specialty}
+                                <span className="font-medium">Specialty:</span>{" "}
+                                {hpridResult.details.specialty}
                               </div>
                               <div>
-                                <span className="font-medium">Hospital:</span> {hpridResult.details.hospital}
+                                <span className="font-medium">Hospital:</span>{" "}
+                                {hpridResult.details.hospital}
                               </div>
                               <div>
-                                <span className="font-medium">License Status:</span>{" "}
-                                <Badge variant="default" className="text-green-600">
+                                <span className="font-medium">
+                                  License Status:
+                                </span>{" "}
+                                <Badge
+                                  variant="default"
+                                  className="text-green-600"
+                                >
                                   {hpridResult.details.licenseStatus}
                                 </Badge>
                               </div>
                               <div>
-                                <span className="font-medium">Registration Date:</span> {hpridResult.details.registrationDate}
+                                <span className="font-medium">
+                                  Registration Date:
+                                </span>{" "}
+                                {hpridResult.details.registrationDate}
                               </div>
                               <div>
-                                <span className="font-medium">State:</span> {hpridResult.details.state}
+                                <span className="font-medium">State:</span>{" "}
+                                {hpridResult.details.state}
                               </div>
                             </div>
                           </div>
@@ -357,7 +389,9 @@ export function VerificationSystem() {
                     id="insurance"
                     placeholder="e.g., POL001234567890"
                     value={insuranceInput}
-                    onChange={(e) => setInsuranceInput(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setInsuranceInput(e.target.value.toUpperCase())
+                    }
                     disabled={insuranceLoading}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -365,8 +399,8 @@ export function VerificationSystem() {
                   </p>
                 </div>
                 <div className="flex items-end">
-                  <Button 
-                    onClick={verifyInsurance} 
+                  <Button
+                    onClick={verifyInsurance}
                     disabled={insuranceLoading || !insuranceInput.trim()}
                     className="flex items-center gap-2"
                   >
@@ -382,7 +416,9 @@ export function VerificationSystem() {
 
               {/* Sample Policy Numbers */}
               <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-2">Sample Policy Numbers for Testing:</p>
+                <p className="text-sm font-medium mb-2">
+                  Sample Policy Numbers for Testing:
+                </p>
                 <div className="flex gap-2 flex-wrap">
                   <Button
                     variant="outline"
@@ -412,28 +448,46 @@ export function VerificationSystem() {
                           <div className="mt-3 space-y-2">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <span className="font-medium">Policy Holder:</span> {insuranceResult.details.name}
+                                <span className="font-medium">
+                                  Policy Holder:
+                                </span>{" "}
+                                {insuranceResult.details.name}
                               </div>
                               <div>
-                                <span className="font-medium">Provider:</span> {insuranceResult.details.insuranceProvider}
+                                <span className="font-medium">Provider:</span>{" "}
+                                {insuranceResult.details.insuranceProvider}
                               </div>
                               <div>
-                                <span className="font-medium">Policy Number:</span> {insuranceResult.details.policyNumber}
+                                <span className="font-medium">
+                                  Policy Number:
+                                </span>{" "}
+                                {insuranceResult.details.policyNumber}
                               </div>
                               <div>
                                 <span className="font-medium">Status:</span>{" "}
-                                <Badge 
-                                  variant="default" 
-                                  className={insuranceResult.status === "verified" ? "text-green-600" : "text-red-600"}
+                                <Badge
+                                  variant="default"
+                                  className={
+                                    insuranceResult.status === "verified"
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }
                                 >
-                                  {insuranceResult.details.status || insuranceResult.status}
+                                  {insuranceResult.details.status ||
+                                    insuranceResult.status}
                                 </Badge>
                               </div>
                               <div>
-                                <span className="font-medium">Coverage Amount:</span> {insuranceResult.details.coverageAmount}
+                                <span className="font-medium">
+                                  Coverage Amount:
+                                </span>{" "}
+                                {insuranceResult.details.coverageAmount}
                               </div>
                               <div>
-                                <span className="font-medium">Expiry Date:</span> {insuranceResult.details.expiryDate}
+                                <span className="font-medium">
+                                  Expiry Date:
+                                </span>{" "}
+                                {insuranceResult.details.expiryDate}
                               </div>
                             </div>
                           </div>

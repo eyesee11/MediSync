@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Moon, Sun, Monitor } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,6 @@ export function ThemeToggle() {
   const cycleTheme = () => {
     if (theme === "light") {
       setTheme("dark");
-    } else if (theme === "dark") {
-      setTheme("system");
     } else {
       setTheme("light");
     }
@@ -44,10 +42,6 @@ export function ThemeToggle() {
         return (
           <Moon className="h-[1.2rem] w-[1.2rem] transition-all duration-200" />
         );
-      case "system":
-        return (
-          <Monitor className="h-[1.2rem] w-[1.2rem] transition-all duration-200" />
-        );
       default:
         return (
           <Sun className="h-[1.2rem] w-[1.2rem] transition-all duration-200" />
@@ -60,8 +54,6 @@ export function ThemeToggle() {
       case "light":
         return "Switch to dark mode";
       case "dark":
-        return "Switch to system mode";
-      case "system":
         return "Switch to light mode";
       default:
         return "Toggle theme";

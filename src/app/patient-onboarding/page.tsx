@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth/auth-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   ArrowRight,
   ArrowLeft,
@@ -675,9 +674,6 @@ export default function PatientOnboardingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
