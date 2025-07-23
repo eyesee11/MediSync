@@ -4,7 +4,9 @@ things to modify next
 
 still left:
 i)create a user guide type interface to guide new users and make them familiar with all the features.
-
+ii)validation
+iii)Assign unique app id toe very user.
+iv)
 
 
 1) ✅ voice chat enabling in the ai chatbot (COMPLETED - Added speech-to-text and text-to-speech capabilities)

@@ -1,364 +1,291 @@
 "use client";
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/auth/auth-provider";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { FcGoogle } from "react-icons/fc";
-import { Fingerprint } from "lucide-react";
+import { useFirebaseAuth } from "@/contexts/firebase-auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { Chrome, CreditCard } from "lucide-react";
 
-export function AuthPage() {
+export default function AuthPage() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [showAadhar, setShowAadhar] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    displayName: "",
+    role: "patient" as "patient" | "doctor",
+    aadharNumber: "",
+    otp: "",
+  });
+
+  const {
+    signInWithGoogle,
+    signInWithAadhar,
+    signInWithEmail,
+    registerWithEmail,
+    loading,
+  } = useFirebaseAuth();
+  const { toast } = useToast();
   const router = useRouter();
-  const { login } = useAuth();
-  const [role, setRole] = React.useState<"doctor" | "patient">("doctor");
-  const [name, setName] = React.useState("");
-  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
-  const [isAadharLoading, setIsAadharLoading] = React.useState(false);
-
-  const handleLogin = (event: React.FormEvent) => {
-    event.preventDefault();
-    login({
-      name: role === "doctor" ? "Dr. Ananya Reddy" : "Ajay Singh",
-      role,
-    });
-    router.push("/dashboard");
-  };
-
-  const handleRegister = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!name) {
-      // Simple validation
-      alert("Please enter your name.");
-      return;
-    }
-
-    // For doctors, redirect to detailed onboarding
-    if (role === "doctor") {
-      router.push("/doctor-onboarding");
-      return;
-    }
-
-    // For patients, redirect to patient onboarding
-    if (role === "patient") {
-      router.push("/patient-onboarding");
-      return;
-    }
-
-    login({ name, role });
-    router.push("/dashboard");
-  };
 
   const handleGoogleAuth = async () => {
-    setIsGoogleLoading(true);
-
-    // Simulate Google OAuth flow
-    setTimeout(() => {
-      // Mock Google user data
-      const googleUser = {
-        name: "Priya Sharma",
-        email: "priya.sharma@gmail.com",
-        picture: "https://lh3.googleusercontent.com/a/default-user=s96-c",
-        verified: true,
-      };
-
-      login({
-        name: googleUser.name,
-        role: role,
-        email: googleUser.email,
-        authMethod: "google",
-        verified: googleUser.verified,
+    try {
+      await signInWithGoogle();
+      toast({
+        title: "Success!",
+        description: "Signed in with Google successfully.",
       });
-
       router.push("/dashboard");
-      setIsGoogleLoading(false);
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign in with Google.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAadharAuth = async () => {
-    setIsAadharLoading(true);
-
-    // Simulate Aadhar authentication flow
-    setTimeout(() => {
-      // Mock Aadhar user data
-      const aadharUser = {
-        name: "Rajesh Kumar",
-        aadharNumber: "****-****-1234",
-        verified: true,
-        address: "Delhi, India",
-      };
-
-      login({
-        name: aadharUser.name,
-        role: role,
-        authMethod: "aadhar",
-        verified: aadharUser.verified,
-        aadharNumber: aadharUser.aadharNumber,
+    try {
+      await signInWithAadhar(formData.aadharNumber, formData.otp);
+      toast({
+        title: "Success!",
+        description: "Signed in with Aadhar successfully.",
       });
-
       router.push("/dashboard");
-      setIsAadharLoading(false);
-    }, 2500);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          "Failed to sign in with Aadhar. Use OTP: 123456 for testing.",
+        variant: "destructive",
+      });
+    }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-      <div className="flex-1 flex items-center justify-center p-4 py-8">
-        <Card className="w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <h1 className="text-2xl font-bold">MediSync Hub</h1>
-            </div>
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (isLogin) {
+        await signInWithEmail(formData.email, formData.password);
+      } else {
+        await registerWithEmail(
+          formData.email,
+          formData.password,
+          formData.displayName,
+          formData.role
+        );
+      }
+
+      toast({
+        title: "Success!",
+        description: isLogin
+          ? "Signed in successfully."
+          : "Account created successfully.",
+      });
+      router.push("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${isLogin ? "sign in" : "create account"}.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (showAadhar) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Aadhar Authentication
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
-              </TabsList>
-              <TabsContent value="login">
-                <form onSubmit={handleLogin}>
-                  <Tabs
-                    defaultValue="doctor"
-                    onValueChange={(value) =>
-                      setRole(value as "doctor" | "patient")
-                    }
-                    className="w-full"
-                  >
-                    <CardHeader>
-                      <CardTitle>Sign In</CardTitle>
-                      <CardDescription>
-                        Select your role and sign in to continue.
-                      </CardDescription>
-                    </CardHeader>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="doctor">Doctor</TabsTrigger>
-                      <TabsTrigger value="patient">Patient</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="doctor">
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="doctor-email-login">Email</Label>
-                          <Input
-                            id="doctor-email-login"
-                            type="email"
-                            placeholder="doctor@medisync.com"
-                            defaultValue="doctor@medisync.com"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="doctor-password-login">
-                            Password
-                          </Label>
-                          <Input
-                            id="doctor-password-login"
-                            type="password"
-                            defaultValue="password"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="patient">
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="patient-email-login">Email</Label>
-                          <Input
-                            id="patient-email-login"
-                            type="email"
-                            placeholder="patient@email.com"
-                            defaultValue="patient@email.com"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="patient-password-login">
-                            Password
-                          </Label>
-                          <Input
-                            id="patient-password-login"
-                            type="password"
-                            defaultValue="password"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                  <Button type="submit" className="w-full">
-                    Sign In as {role === "doctor" ? "a Doctor" : "a Patient"}
-                  </Button>
-                </form>
-              </TabsContent>
-              <TabsContent value="register">
-                <form onSubmit={handleRegister}>
-                  <Tabs
-                    defaultValue="doctor"
-                    onValueChange={(value) =>
-                      setRole(value as "doctor" | "patient")
-                    }
-                    className="w-full"
-                  >
-                    <CardHeader className="pb-3">
-                      <CardTitle>Create Account</CardTitle>
-                      <CardDescription>
-                        Select your role and fill in your details to register.
-                      </CardDescription>
-                    </CardHeader>
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                      <TabsTrigger value="doctor">Doctor</TabsTrigger>
-                      <TabsTrigger value="patient">Patient</TabsTrigger>
-                    </TabsList>
-                    <div className="space-y-3 pb-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name-register">Full Name</Label>
-                        <Input
-                          id="name-register"
-                          type="text"
-                          placeholder="e.g. Priya Sharma"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email-register">Email</Label>
-                        <Input
-                          id="email-register"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password-register">Password</Label>
-                        <Input
-                          id="password-register"
-                          type="password"
-                          required
-                        />
-                      </div>
-                      {role === "doctor" && (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="medical-license">
-                              Medical License Number
-                            </Label>
-                            <Input
-                              id="medical-license"
-                              type="text"
-                              placeholder="e.g. MH123456789"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="specialization">
-                              Specialization
-                            </Label>
-                            <Input
-                              id="specialization"
-                              type="text"
-                              placeholder="e.g. Cardiology"
-                              required
-                            />
-                          </div>
-                        </>
-                      )}
-                      {role === "patient" && (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                              id="phone"
-                              type="tel"
-                              placeholder="e.g. +91 9876543210"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="dob">Date of Birth</Label>
-                            <Input id="dob" type="date" required />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </Tabs>
-                  <Button type="submit" className="w-full">
-                    {role === "doctor"
-                      ? "Start Doctor Registration"
-                      : "Register as Patient"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-
-            <div className="relative my-6">
-              <Separator />
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="aadhar">Aadhar Number</Label>
+              <Input
+                id="aadhar"
+                type="text"
+                placeholder="Enter 12-digit Aadhar number"
+                value={formData.aadharNumber}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    aadharNumber: e.target.value,
+                  }))
+                }
+                maxLength={12}
+              />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                onClick={handleGoogleAuth}
-                disabled={isGoogleLoading}
-                className="flex items-center justify-center"
-              >
-                {isGoogleLoading ? (
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
-                ) : (
-                  <FcGoogle className="mr-2 h-5 w-5" />
-                )}
-                Google
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleAadharAuth}
-                disabled={isAadharLoading}
-                className="flex items-center justify-center"
-              >
-                {isAadharLoading ? (
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-900" />
-                ) : (
-                  <Fingerprint className="mr-2 h-5 w-5 text-blue-800" />
-                )}
-                Aadhar
-              </Button>
+            <div>
+              <Label htmlFor="otp">OTP</Label>
+              <Input
+                id="otp"
+                type="text"
+                placeholder="Enter OTP (use 123456 for testing)"
+                value={formData.otp}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, otp: e.target.value }))
+                }
+                maxLength={6}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                For testing, use OTP: 123456
+              </p>
             </div>
+            <Button
+              onClick={handleAadharAuth}
+              className="w-full"
+              disabled={loading || !formData.aadharNumber || !formData.otp}
+            >
+              {loading ? "Verifying..." : "Verify & Sign In"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowAadhar(false)}
+              className="w-full"
+            >
+              Back to Login Options
+            </Button>
           </CardContent>
-          <CardFooter className="flex-col text-xs text-center">
-            <p className="text-muted-foreground">
-              This is a simulated auth system. No real data is processed.
-            </p>
-            <p className="text-muted-foreground mt-2">
-              By signing in, you agree to our Terms of Service.
-            </p>
-          </CardFooter>
         </Card>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center">
+            {isLogin ? "Sign In to MediSync" : "Create MediSync Account"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Google Sign In */}
+          <Button
+            onClick={handleGoogleAuth}
+            variant="outline"
+            className="w-full"
+            disabled={loading}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Continue with Google
+          </Button>
+
+          {/* Aadhar Sign In */}
+          <Button
+            onClick={() => setShowAadhar(true)}
+            variant="outline"
+            className="w-full"
+            disabled={loading}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            Continue with Aadhar
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
+          {/* Email Form */}
+          <form onSubmit={handleEmailAuth} className="space-y-4">
+            {!isLogin && (
+              <>
+                <div>
+                  <Label htmlFor="displayName">Full Name</Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    value={formData.displayName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        displayName: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="role">Role</Label>
+                  <select
+                    id="role"
+                    value={formData.role}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        role: e.target.value as "patient" | "doctor",
+                      }))
+                    }
+                    className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-600"
+                  >
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor</option>
+                  </select>
+                </div>
+              </>
+            )}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading
+                ? "Processing..."
+                : isLogin
+                ? "Sign In"
+                : "Create Account"}
+            </Button>
+          </form>
+
+          <div className="text-center">
+            <Button
+              variant="link"
+              onClick={() => setIsLogin(!isLogin)}
+              disabled={loading}
+            >
+              {isLogin
+                ? "Need an account? Sign up"
+                : "Already have an account? Sign in"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
