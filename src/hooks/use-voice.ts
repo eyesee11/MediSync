@@ -1,31 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 // Type definitions for Web Speech API
-interface SpeechRecognitionEvent extends Event {
-  readonly resultIndex: number;
-  readonly results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  readonly error: string;
-  readonly message: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-}
-
-interface SpeechRecognitionStatic {
-  new (): SpeechRecognition;
-}
+// Remove custom SpeechRecognition interfaces to avoid type conflicts with the browser's built-in types.
 
 interface UseVoiceProps {
   onTranscript?: (transcript: string) => void;
@@ -79,7 +55,7 @@ export const useVoice = ({ onTranscript, language = 'en-US' }: UseVoiceProps = {
     recognition.onstart = () => {
       setIsListening(true);
     };
-
+  // (Removed duplicate and incorrect redeclaration of recognitionRef)
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
       let interimTranscript = '';
@@ -195,7 +171,13 @@ export const useVoice = ({ onTranscript, language = 'en-US' }: UseVoiceProps = {
 // Type declarations for browsers that might not have these types
 declare global {
   interface Window {
-    SpeechRecognition: SpeechRecognitionStatic;
-    webkitSpeechRecognition: SpeechRecognitionStatic;
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
   }
 }

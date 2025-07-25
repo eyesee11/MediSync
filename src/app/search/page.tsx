@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,11 +50,15 @@ import {
   Star,
   User,
   Calendar,
+  Map,
+  MessageSquare,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { DoctorSearch } from "@/components/search/doctor-search";
+import { LocationChatbot } from "@/components/search/location-chatbot";
 
 const specialties = [
   { value: "physician", label: "Physician", icon: Stethoscope },
@@ -330,226 +335,256 @@ export default function SearchPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Advanced Search</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Find Healthcare Providers</h1>
           <p className="text-muted-foreground">
-            Find the right doctor with detailed filters and location search.
+            Search for doctors using our advanced search, local directory, or ask our AI assistant.
           </p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2">
-              <SearchIcon /> Search & Filter
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="mr-2" /> {showFilters ? "Hide" : "Show"}{" "}
-              Filters
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Search by doctor's name..."
-              className="pl-10 text-base"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      <Tabs defaultValue="google-search" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="google-search" className="flex items-center gap-2">
+            <Map className="h-4 w-4" />
+            Google Search
+          </TabsTrigger>
+          <TabsTrigger value="local-directory" className="flex items-center gap-2">
+            <SearchIcon className="h-4 w-4" />
+            Local Directory
+          </TabsTrigger>
+          <TabsTrigger value="ai-assistant" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            AI Assistant
+          </TabsTrigger>
+        </TabsList>
 
-          {showFilters && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t">
-                <div className="space-y-2">
-                  <Label htmlFor="specialty">Specialty / Problem</Label>
-                  <Select
-                    value={filters.specialty}
-                    onValueChange={(val) =>
-                      handleFilterChange("specialty", val)
-                    }
-                  >
-                    <SelectTrigger id="specialty">
-                      <SelectValue placeholder="Select a specialty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Specialties</SelectItem>
-                      {specialties.map((spec) => (
-                        <SelectItem key={spec.value} value={spec.value}>
-                          <div className="flex items-center gap-2">
-                            {spec.icon && (
-                              <spec.icon className="h-4 w-4 text-muted-foreground" />
-                            )}
-                            <span>{spec.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        <TabsContent value="google-search" className="space-y-6">
+          <DoctorSearch onDoctorSelect={(doctor) => {
+            console.log('Selected doctor:', doctor);
+            // You can add additional logic here, like navigation or state updates
+          }} />
+        </TabsContent>
 
-                <div className="space-y-2">
-                  <Label htmlFor="fee-range">
-                    Consultation Fee (Max: ₹{filters.maxFee})
-                  </Label>
-                  <div className="flex items-center gap-4">
-                    <DollarSign className="h-5 w-5 text-muted-foreground" />
-                    <Slider
-                      id="fee-range"
-                      min={50}
-                      max={500}
-                      step={10}
-                      value={[filters.maxFee]}
-                      onValueChange={(val) =>
-                        handleFilterChange("maxFee", val[0])
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Availability</Label>
-                  <div className="flex items-center space-x-2 pt-2">
-                    <Switch
-                      id="available-now"
-                      checked={filters.availableNow}
-                      onCheckedChange={(val) =>
-                        handleFilterChange("availableNow", val)
-                      }
-                    />
-                    <Label htmlFor="available-now">Available Now</Label>
-                  </div>
-                </div>
+        <TabsContent value="local-directory" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <SearchIcon /> Search & Filter Local Directory
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="mr-2" /> {showFilters ? "Hide" : "Show"}{" "}
+                  Filters
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="relative">
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search by doctor's name..."
+                  className="pl-10 text-base"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
 
-              <div className="pt-4 border-t">
-                <Label>Location</Label>
-                <div className="flex items-center space-x-2 pt-2">
-                  <Button
-                    onClick={handleFindNearMe}
-                    disabled={isLocating}
-                    variant="outline"
-                  >
-                    {isLocating ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <LocateFixed className="mr-2 h-4 w-4" />
-                    )}
-                    {isLocating ? "Locating..." : "Use My Current Location"}
-                  </Button>
-                  {searchLocation && (
-                    <Button
-                      onClick={() => setSearchLocation(null)}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      <X className="mr-2 h-4 w-4" /> Clear Location
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-4">
-          {filteredDoctors.length}{" "}
-          {filteredDoctors.length === 1 ? "Doctor" : "Doctors"} Found
-        </h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          {filteredDoctors.length > 0 ? (
-            filteredDoctors.map((doctor) => (
-              <Card key={doctor.name} className="flex flex-col">
-                <CardHeader className="flex flex-row items-start gap-4">
-                  <Avatar className="w-20 h-20 border">
-                    <AvatarImage
-                      src={doctor.avatar}
-                      alt={doctor.name}
-                      data-ai-hint={doctor.aiHint}
-                    />
-                    <AvatarFallback>{doctor.avatarFallback}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-lg">{doctor.name}</h3>
-                        <p className="text-primary font-medium">
-                          {doctor.specialty}
-                        </p>
-                      </div>
-                      <Badge
-                        variant={doctor.availableNow ? "default" : "secondary"}
-                        className={
-                          doctor.availableNow
-                            ? "bg-green-100 text-green-800"
-                            : ""
+              {showFilters && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t">
+                    <div className="space-y-2">
+                      <Label htmlFor="specialty">Specialty / Problem</Label>
+                      <Select
+                        value={filters.specialty}
+                        onValueChange={(val) =>
+                          handleFilterChange("specialty", val)
                         }
                       >
-                        {doctor.availableNow ? "Available Now" : "Unavailable"}
-                      </Badge>
+                        <SelectTrigger id="specialty">
+                          <SelectValue placeholder="Select a specialty" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Specialties</SelectItem>
+                          {specialties.map((spec) => (
+                            <SelectItem key={spec.value} value={spec.value}>
+                              <div className="flex items-center gap-2">
+                                {spec.icon && (
+                                  <spec.icon className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                <span>{spec.label}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-2 space-y-1">
-                      <p className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" /> {doctor.location.address}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4" /> ₹{doctor.fee}{" "}
-                        Consultation Fee
-                      </p>
-                      {searchLocation &&
-                        typeof doctor.distance === "number" && (
-                          <p className="font-semibold flex items-center gap-2">
-                            {doctor.distance.toFixed(1)} miles away
-                          </p>
-                        )}
-                    </div>
-                  </div>
-                </CardHeader>
 
-                <CardFooter className="flex justify-between items-center mt-auto pt-4 border-t">
-                  <div className="flex items-center gap-2">
-                    {searchLocation && (
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.location.lat},${doctor.location.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="outline" size="sm">
-                          <Navigation className="mr-2 h-4 w-4" /> Directions
-                        </Button>
-                      </a>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewProfile(doctor)}
-                    >
-                      <User className="mr-2 h-4 w-4" /> View Profile
-                    </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="fee-range">
+                        Consultation Fee (Max: ₹{filters.maxFee})
+                      </Label>
+                      <div className="flex items-center gap-4">
+                        <DollarSign className="h-5 w-5 text-muted-foreground" />
+                        <Slider
+                          id="fee-range"
+                          min={50}
+                          max={500}
+                          step={10}
+                          value={[filters.maxFee]}
+                          onValueChange={(val) =>
+                            handleFilterChange("maxFee", val[0])
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Availability</Label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Switch
+                          id="available-now"
+                          checked={filters.availableNow}
+                          onCheckedChange={(val) =>
+                            handleFilterChange("availableNow", val)
+                          }
+                        />
+                        <Label htmlFor="available-now">Available Now</Label>
+                      </div>
+                    </div>
                   </div>
-                  <Link href="/payment">
-                    <Button>Book Appointment</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground">
-                No doctors match your criteria. Try adjusting your filters.
-              </p>
+
+                  <div className="pt-4 border-t">
+                    <Label>Location</Label>
+                    <div className="flex items-center space-x-2 pt-2">
+                      <Button
+                        onClick={handleFindNearMe}
+                        disabled={isLocating}
+                        variant="outline"
+                      >
+                        {isLocating ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <LocateFixed className="mr-2 h-4 w-4" />
+                        )}
+                        {isLocating ? "Locating..." : "Use My Current Location"}
+                      </Button>
+                      {searchLocation && (
+                        <Button
+                          onClick={() => setSearchLocation(null)}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <X className="mr-2 h-4 w-4" /> Clear Location
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          <div>
+            <h2 className="text-xl font-semibold mb-4">
+              {filteredDoctors.length}{" "}
+              {filteredDoctors.length === 1 ? "Doctor" : "Doctors"} Found
+            </h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              {filteredDoctors.length > 0 ? (
+                filteredDoctors.map((doctor) => (
+                  <Card key={doctor.name} className="flex flex-col">
+                    <CardHeader className="flex flex-row items-start gap-4">
+                      <Avatar className="w-20 h-20 border">
+                        <AvatarImage
+                          src={doctor.avatar}
+                          alt={doctor.name}
+                          data-ai-hint={doctor.aiHint}
+                        />
+                        <AvatarFallback>{doctor.avatarFallback}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-bold text-lg">{doctor.name}</h3>
+                            <p className="text-primary font-medium">
+                              {doctor.specialty}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={doctor.availableNow ? "default" : "secondary"}
+                            className={
+                              doctor.availableNow
+                                ? "bg-green-100 text-green-800"
+                                : ""
+                            }
+                          >
+                            {doctor.availableNow ? "Available Now" : "Unavailable"}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                          <p className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4" /> {doctor.location.address}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" /> ₹{doctor.fee}{" "}
+                            Consultation Fee
+                          </p>
+                          {searchLocation &&
+                            typeof doctor.distance === "number" && (
+                              <p className="font-semibold flex items-center gap-2">
+                                {doctor.distance.toFixed(1)} miles away
+                              </p>
+                            )}
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardFooter className="flex justify-between items-center mt-auto pt-4 border-t">
+                      <div className="flex items-center gap-2">
+                        {searchLocation && (
+                          <a
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.location.lat},${doctor.location.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="outline" size="sm">
+                              <Navigation className="mr-2 h-4 w-4" /> Directions
+                            </Button>
+                          </a>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewProfile(doctor)}
+                        >
+                          <User className="mr-2 h-4 w-4" /> View Profile
+                        </Button>
+                      </div>
+                      <Link href="/payment">
+                        <Button>Book Appointment</Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-muted-foreground">
+                    No doctors match your criteria. Try adjusting your filters.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ai-assistant" className="space-y-6">
+          <LocationChatbot />
+        </TabsContent>
+      </Tabs>
 
       {/* Doctor Profile Modal */}
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
@@ -612,10 +647,10 @@ export default function SearchPage() {
                 <div>
                   <h4 className="font-semibold mb-2">Qualifications</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedDoctor.qualifications.map(
+                    {selectedDoctor.qualification.split(',').map(
                       (qualification, index) => (
                         <Badge key={index} variant="outline">
-                          {qualification}
+                          {qualification.trim()}
                         </Badge>
                       )
                     )}

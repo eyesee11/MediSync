@@ -308,6 +308,11 @@ export function AppSidebarContent() {
                   ? "Medical Professional"
                   : "Patient Profile"}
               </p>
+              {user?.registrationId && (
+                <p className="text-xs font-mono text-primary/80 truncate">
+                  ID: {user.registrationId}
+                </p>
+              )}
             </div>
             <Button
               variant="ghost"

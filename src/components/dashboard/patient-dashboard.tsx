@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useFirebaseAuth } from "@/contexts/firebase-auth-context";
+import { DocumentRequestsManager } from "@/components/dashboard/document-requests-manager";
 import {
   LineChart,
   Line,
@@ -130,15 +132,52 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
   const [selectedConsultation, setSelectedConsultation] = useState<
     number | null
   >(null);
+  
+  // Use Firebase auth to get real user data
+  const { user: firebaseUser } = useFirebaseAuth();
 
-  // Default patient data if none provided
-  const patientData = patient || {
-    name: "Priya Sharma",
-    email: "priya.sharma@gmail.com",
-    phone: "+91 98765 43210",
-    bloodType: "A+",
-    insuranceProvider: "Star Health Insurance",
-    emergencyContact: "Rajesh Sharma (+91 98765 43211)",
+  // Use real user data from Firebase if available, otherwise fall back to prop or default
+  const patientData = firebaseUser || patient || {
+    displayName: "Loading...",
+    email: "loading@example.com",
+    registrationId: "Loading...",
+    role: "patient" as const,
+  };
+
+  // Helper function to safely get display name
+  const getDisplayName = () => {
+    if (firebaseUser?.displayName) return firebaseUser.displayName;
+    if ('displayName' in patientData && patientData.displayName) return patientData.displayName;
+    if ('name' in patientData && patientData.name) return patientData.name;
+    if (patientData.email) return patientData.email.split('@')[0];
+    return "User";
+  };
+
+  const displayName = getDisplayName();
+  const userInitials = displayName.split(' ').map((name: string) => name[0]).join('').toUpperCase().slice(0, 2);
+
+  // Helper functions to safely access properties
+  const getPhotoURL = () => {
+    if (firebaseUser?.photoURL) return firebaseUser.photoURL;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=059669&color=fff`;
+  };
+
+  const getRegistrationId = () => {
+    if (firebaseUser?.registrationId) return firebaseUser.registrationId;
+    if ('registrationId' in patientData && patientData.registrationId) return patientData.registrationId;
+    return "Not assigned";
+  };
+
+  const getPhoneNumber = () => {
+    if (firebaseUser?.phoneNumber) return firebaseUser.phoneNumber;
+    if ('phone' in patientData && patientData.phone) return patientData.phone;
+    if ('phoneNumber' in patientData && patientData.phoneNumber) return patientData.phoneNumber;
+    return patientData.email;
+  };
+
+  const getVerificationStatus = () => {
+    if (firebaseUser?.verified !== undefined) return firebaseUser.verified;
+    return false;
   };
 
   return (
@@ -148,41 +187,42 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16">
-              <AvatarImage src="https://placehold.co/64x64/059669/FFFFFF.png?text=P" />
+              <AvatarImage src={getPhotoURL()} />
               <AvatarFallback className="bg-green-600 text-white">
-                P
+                {userInitials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">{patientData.name}</h1>
+              <h1 className="text-2xl font-bold">{displayName}</h1>
               <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
-                  Blood Type: {patientData.bloodType}
+                  ID: {getRegistrationId()}
                 </div>
                 <div className="flex items-center gap-1">
                   <Phone className="w-4 h-4" />
-                  {patientData.phone}
+                  {getPhoneNumber()}
                 </div>
                 <div className="flex items-center gap-1">
                   <FileText className="w-4 h-4" />
-                  {patientData.insuranceProvider}
+                  {firebaseUser ? "Account Verified" : "Profile Loading"}
                 </div>
               </div>
             </div>
             <Badge variant="outline" className="bg-green-50 text-green-700">
-              Active Patient
+              {getVerificationStatus() ? "Verified Patient" : "Active Patient"}
             </Badge>
           </div>
         </CardHeader>
       </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="health-metrics">Health Metrics</TabsTrigger>
           <TabsTrigger value="consultations">Consultations</TabsTrigger>
           <TabsTrigger value="referral-network">Referral Network</TabsTrigger>
+          <TabsTrigger value="document-requests">Document Requests</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -427,7 +467,7 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
+                      label={(props: any) => `${props.name}: ${props.value}`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="referrals"
@@ -493,10 +533,10 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`₹${value}`, "Cost"]} />
+                  <Tooltip formatter={(value: any) => [`₹${value}`, "Cost"]} />
                   <Legend />
                   <Bar
-                    dataKey={(item) =>
+                    dataKey={(item: any) =>
                       parseInt(item.cost.replace("₹", "").replace(",", ""))
                     }
                     fill="#8884d8"
@@ -506,6 +546,10 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="document-requests" className="space-y-6">
+          <DocumentRequestsManager />
         </TabsContent>
       </Tabs>
     </div>

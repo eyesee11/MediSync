@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useFirebaseAuth } from "@/contexts/firebase-auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,13 +37,19 @@ import {
   IdCard,
   Stethoscope,
   MapPin,
+  Heart,
+  Activity,
 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user: localUser } = useAuth();
+  const { user: firebaseUser } = useFirebaseAuth();
   const { toast } = useToast();
+  
+  // Use Firebase user data if available, fall back to local user
+  const user = firebaseUser || localUser;
 
-  // Enhanced state for doctor profile data
+  // Enhanced state for profile data
   const [profileData, setProfileData] = React.useState({
     // Personal Information
     firstName: "",
@@ -51,6 +58,7 @@ export default function ProfilePage() {
     phone: "",
     dateOfBirth: "",
     gender: "",
+    bloodType: "", // Add blood type for patient profile
 
     // Profile Photo
     profilePhoto: null as File | null,
@@ -234,17 +242,17 @@ export default function ProfilePage() {
     });
   };
 
-  // Only render for doctors
-  if (user?.role !== "doctor") {
+  // Show loading state if user is still loading
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
+            <CardTitle>Loading Profile...</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              This page is only available for users with a 'Doctor' role.
+              Please wait while we load your profile information.
             </p>
           </CardContent>
         </Card>
@@ -252,23 +260,167 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <div className="space-y-8 max-w-4xl mx-auto p-6">
-      <div className="text-center relative">
-        <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-3 mb-4">
-          <Stethoscope className="h-10 w-10 text-primary" />
-          Doctor Registration
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Welcome to MediSync! Complete your professional profile to start
-          connecting with patients and managing medical records securely.
-        </p>
-        <div className="flex justify-center mt-6">
-          <Badge variant="outline" className="text-sm">
-            <ShieldCheck className="mr-2 h-4 w-4" />
-            All information is encrypted and HIPAA compliant
-          </Badge>
+  // Patient Profile View
+  if (user?.role === "patient") {
+    // Helper function to safely get user properties
+    const getDisplayName = () => {
+      if ('displayName' in user && user.displayName) return user.displayName;
+      if ('email' in user && user.email) return user.email.split('@')[0];
+      return "Patient";
+    };
+    
+    const getPhotoURL = () => {
+      if ('photoURL' in user && user.photoURL) return user.photoURL;
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName())}&background=059669&color=fff`;
+    };
+    
+    const getEmail = () => {
+      if ('email' in user && user.email) return user.email;
+      return "";
+    };
+    
+    const getRegistrationId = () => {
+      if ('registrationId' in user && user.registrationId) return user.registrationId;
+      return "Not assigned";
+    };
+    
+    const isVerified = () => {
+      if ('verified' in user && typeof user.verified === 'boolean') return user.verified;
+      return false;
+    };
+    
+    const displayName = getDisplayName();
+    const userInitials = displayName.split(' ').map((name: string) => name[0]).join('').toUpperCase().slice(0, 2);
+    
+    return (
+      <div className="space-y-8 max-w-4xl mx-auto p-6">
+        <div className="text-center relative">
+          <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-3 mb-4">
+            <Heart className="h-10 w-10 text-primary" />
+            Patient Profile
+          </h1>
+          
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <Avatar className="w-32 h-32">
+                <AvatarImage src={getPhotoURL()} />
+                <AvatarFallback className="bg-green-600 text-white text-3xl">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <Button
+                size="sm"
+                variant="outline"
+                className="absolute bottom-0 right-0 rounded-full h-8 w-8 p-0"
+              >
+                <Camera className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
+
+        {/* Patient Info Cards */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Personal Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Full Name</Label>
+                <Input value={displayName} disabled />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input value={getEmail()} disabled />
+              </div>
+              <div>
+                <Label>Registration ID</Label>
+                <Input value={getRegistrationId()} disabled className="font-mono" />
+              </div>
+              <div>
+                <Label>Account Status</Label>
+                <div className="flex items-center gap-2">
+                  <Badge variant={isVerified() ? "default" : "secondary"}>
+                    {isVerified() ? "Verified" : "Pending Verification"}
+                  </Badge>
+                  {isVerified() && <CheckCircle className="h-4 w-4 text-green-600" />}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Health Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Blood Type</Label>
+                <Select value={profileData.bloodType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select blood type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A+">A+</SelectItem>
+                    <SelectItem value="A-">A-</SelectItem>
+                    <SelectItem value="B+">B+</SelectItem>
+                    <SelectItem value="B-">B-</SelectItem>
+                    <SelectItem value="AB+">AB+</SelectItem>
+                    <SelectItem value="AB-">AB-</SelectItem>
+                    <SelectItem value="O+">O+</SelectItem>
+                    <SelectItem value="O-">O-</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Emergency Contact</Label>
+                <Input placeholder="Emergency contact number" />
+              </div>
+              <div>
+                <Label>Allergies</Label>
+                <Textarea placeholder="List any known allergies..." />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full">
+                <Save className="w-4 h-4 mr-2" />
+                Update Health Info
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Doctor Profile View (existing code)
+  if (user?.role === "doctor") {
+    return (
+      <div className="space-y-8 max-w-4xl mx-auto p-6">
+        <div className="text-center relative">
+          <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-3 mb-4">
+            <Stethoscope className="h-10 w-10 text-primary" />
+            Doctor Registration
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Welcome to MediSync! Complete your professional profile to start
+            connecting with patients and managing medical records securely.
+          </p>
+      <div className="flex justify-center mt-6">
+        <Badge variant="outline" className="text-sm">
+          <ShieldCheck className="mr-2 h-4 w-4" />
+          All information is encrypted and HIPAA compliant
+        </Badge>
+      </div>
       </div>
 
       {isCompleted ? (
@@ -747,6 +899,23 @@ export default function ProfilePage() {
           </Card>
         </form>
       )}
+    </div>
+    );
+  }
+
+  // Fallback for unknown role
+  return (
+    <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            Unable to determine user role. Please contact support.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

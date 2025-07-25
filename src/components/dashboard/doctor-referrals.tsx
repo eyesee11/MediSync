@@ -9,6 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useFirebaseAuth } from "@/contexts/firebase-auth-context";
+import { DocumentRequestForm } from "@/components/dashboard/document-request-form";
+import { SimpleDocumentRequestForm } from "@/components/debug/simple-document-form";
+import { PatientLookupTest } from "@/components/debug/patient-lookup-test";
 import {
   Select,
   SelectContent,
@@ -198,9 +202,18 @@ interface DoctorReferralsProps {
 export function DoctorReferrals({ doctor }: DoctorReferralsProps) {
   const [selectedReferral, setSelectedReferral] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  
+  // Use Firebase auth to get real user data
+  const { user: firebaseUser } = useFirebaseAuth();
 
-  // Default doctor data if none provided
-  const doctorData = doctor || {
+  // Use real user data from Firebase if available, otherwise fall back to prop or default
+  const doctorData = firebaseUser && firebaseUser.role === 'doctor' ? {
+    name: firebaseUser.displayName || "Doctor",
+    specialty: "General Medicine", // You can add specialty to UserProfile later
+    hospital: "MediSync Network", // Default hospital
+    registrationId: firebaseUser.registrationId,
+    verified: firebaseUser.verified
+  } : doctor || {
     name: "Dr. Arjun Patel",
     specialty: "Cardiology",
     hospital: "Apollo Hospital Delhi",
@@ -276,12 +289,13 @@ export function DoctorReferrals({ doctor }: DoctorReferralsProps) {
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="referrals" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="document-access" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="referrals">Incoming Referrals</TabsTrigger>
           <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="templates">Response Templates</TabsTrigger>
+          <TabsTrigger value="document-access">Document Access</TabsTrigger>
         </TabsList>
 
         <TabsContent value="referrals" className="space-y-6">
@@ -852,6 +866,14 @@ export function DoctorReferrals({ doctor }: DoctorReferralsProps) {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="document-access" className="space-y-6">
+          <div className="p-8 border-2 border-green-500 bg-green-50">
+            <h1 className="text-2xl font-bold text-green-800">DOCUMENT ACCESS TAB - TEST</h1>
+            <p className="text-green-600">This should show when Document Access tab is clicked</p>
+            <SimpleDocumentRequestForm />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

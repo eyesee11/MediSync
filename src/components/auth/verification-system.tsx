@@ -31,10 +31,12 @@ interface VerificationResult {
     specialty?: string;
     hospital?: string;
     licenseStatus?: string;
+    state?: string;
     insuranceProvider?: string;
     policyNumber?: string;
     expiryDate?: string;
     coverageAmount?: string;
+    status?: string;
   };
 }
 

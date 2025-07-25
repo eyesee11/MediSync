@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 interface User {
   name: string;
   role: 'doctor' | 'patient';
+  registrationId?: string; // Add registration ID
 }
 
 interface AuthContextType {
@@ -17,7 +18,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const publicRoutes = ['/login', '/'];
+const publicRoutes = [
+  '/login', 
+  '/', 
+  '/contact', 
+  '/patient-onboarding', 
+  '/doctor-onboarding'
+];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
